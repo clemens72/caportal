@@ -85,7 +85,7 @@ export default function PublicPage() {
             variant="contained"
             size="large"
             component={NextLink}
-            href="/artists"
+            href="/entertainers"
             sx={{ 
               fontSize: '1.1rem',
               textTransform: 'none',
