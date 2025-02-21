@@ -199,7 +199,7 @@ export default function ContactPage() {
 
           {/* Contact Information */}
           <Grid item xs={12} md={4}>
-            <Paper elevation={2} sx={{ p: 4, height: '100%' }}>
+            <Paper elevation={2} sx={{ p: 4, height: 'auto', mt: 4}}>
               <Typography variant="h4" sx={{ mb: 4 }}>
                 Contact Information
               </Typography>
