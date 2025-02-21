@@ -11,8 +11,7 @@ import logoCA from '../assets/logo.png'
 
 export default function TopBar() {
   return (
-    <Box sx={{ flexGrow: 1 }}>
-      <AppBar position="static">
+      <AppBar position="fixed">
         <Toolbar>
           <IconButton
             size="large"
@@ -26,13 +25,12 @@ export default function TopBar() {
           <Box sx={{ marginRight: 2, alignItems: 'center', display: 'flex' }}>
             <Image src={logoCA} alt="Class Acts Logo" height={25} />
           </Box>
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+          <Typography variant="h6" component="div" sx={{ flexGrow: 1, color: 'white' }}>
             Class Acts Entertainment
           </Typography>
           <Button color="inherit">Log In</Button>
           <Button color="inherit">Sign Up</Button>
         </Toolbar>
       </AppBar>
-    </Box>
   );
 }

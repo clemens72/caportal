@@ -12,7 +12,7 @@ export default function Copyright() {
       }}
     >
       {'Copyright © '}
-      <MuiLink color="inherit" href="https://classactsentertainment.com/">
+      <MuiLink color="inherit" href="https://class-acts.com/">
         Class Acts Entertainment
       </MuiLink>{' '}
       {new Date().getFullYear()}.
