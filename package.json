@@ -3,30 +3,37 @@
     "version": "5.0.0",
     "private": true,
     "scripts": {
-      "dev": "next dev",
-      "build": "next build",
-      "start": "next start",
-      "lint": "next lint",
-      "post-update": "echo \"codesandbox preview only, need an update\" && pnpm update --latest"
+        "dev": "next dev",
+        "build": "next build",
+        "start": "next start",
+        "lint": "next lint",
+        "post-update": "echo \"codesandbox preview only, need an update\" && pnpm update --latest"
     },
     "dependencies": {
-      "@emotion/cache": "latest",
-      "@emotion/react": "latest",
-      "@emotion/styled": "latest",
-      "@mui/icons-material": "latest",
-      "@mui/material": "latest",
-      "@mui/material-nextjs": "latest",
-      "next": "^15.0.0",
-      "next-auth": "5.0.0-beta.25",
-      "react": "^19.0.0",
-      "react-dom": "^19.0.0"
+        "@emotion/cache": "latest",
+        "@emotion/react": "latest",
+        "@emotion/styled": "latest",
+        "@mui/icons-material": "latest",
+        "@mui/lab": "^6.0.0-beta.28",
+        "@mui/material": "latest",
+        "@mui/material-nextjs": "latest",
+        "@mui/x-date-pickers": "^7.23.2",
+        "bcryptjs": "^2.4.3",
+        "dayjs": "^1.11.13",
+        "mongoose": "^8.9.1",
+        "next": "^15.0.0",
+        "next-auth": "5.0.0-beta.25",
+        "react": "^19.0.0",
+        "react-dom": "^19.0.0",
+        "zod": "^3.24.1"
     },
     "devDependencies": {
-      "@types/node": "latest",
-      "@types/react": "^19.0.0",
-      "@types/react-dom": "^19.0.0",
-      "eslint": "latest",
-      "eslint-config-next": "^15.0.0",
-      "typescript": "latest"
+        "@types/bcryptjs": "^2.4.6",
+        "@types/node": "latest",
+        "@types/react": "^19.0.0",
+        "@types/react-dom": "^19.0.0",
+        "eslint": "latest",
+        "eslint-config-next": "^15.0.0",
+        "typescript": "latest"
     }
-  }
+}
