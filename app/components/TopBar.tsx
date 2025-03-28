@@ -1,4 +1,4 @@
-'use client'
+'use client';
 import * as React from 'react';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
@@ -8,9 +8,10 @@ import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
-import Image from 'next/image';
-import logoCA from '../assets/logo.png';
+//import Image from 'next/image';
+//import logoCA from '../../public/next.svg';
 import { useRouter } from 'next/navigation';
+import UserButton from './user-button';
 
 export default function TopBar() {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -32,24 +33,24 @@ export default function TopBar() {
   return (
     <AppBar position="fixed">
       <Toolbar>
-        <Box 
-          sx={{ 
-            marginRight: 2, 
-            alignItems: 'center', 
+        <Box
+          sx={{
+            marginRight: 2,
+            alignItems: 'center',
             display: 'flex',
-            cursor: 'pointer' 
+            cursor: 'pointer',
           }}
           onClick={() => router.push('/')}
         >
-          <Image src={logoCA} alt="Class Acts Logo" height={25} />
+          {/* <Image src={logoCA} alt="Class Acts Logo" height={25} /> */}
         </Box>
-        <Typography 
-          variant="h6" 
-          component="div" 
-          sx={{ 
-            flexGrow: 1, 
+        <Typography
+          variant="h6"
+          component="div"
+          sx={{
+            flexGrow: 1,
             color: 'white',
-            cursor: 'pointer'
+            cursor: 'pointer',
           }}
           onClick={() => router.push('/')}
         >
@@ -80,12 +81,14 @@ export default function TopBar() {
           open={Boolean(anchorEl)}
           onClose={handleClose}
         >
-          <MenuItem onClick={() => handleMenuItemClick('/auth/signin')}>Sign In</MenuItem>
-          <MenuItem onClick={() => handleMenuItemClick('/services')}>Services</MenuItem>
-          <MenuItem onClick={() => handleMenuItemClick('/entertainers')}>Entertainers</MenuItem>
-          <MenuItem onClick={() => handleMenuItemClick('/about')}>About Us</MenuItem>
-          <MenuItem onClick={() => handleMenuItemClick('/contact')}>Contact</MenuItem>
+          <MenuItem onClick={() => handleMenuItemClick('/auth/signin')}>
+            Sign Out
+          </MenuItem>
+          <MenuItem onClick={() => handleMenuItemClick('/calendar')}>
+            Calendar
+          </MenuItem>
         </Menu>
+        <UserButton />
       </Toolbar>
     </AppBar>
   );
