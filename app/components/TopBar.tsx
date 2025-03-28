@@ -8,8 +8,8 @@ import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
-//import Image from 'next/image';
-//import logoCA from '../../public/next.svg';
+import Image from 'next/image';
+import logoCA from '../assets/logo.png';
 import { useRouter } from 'next/navigation';
 import UserButton from './user-button';
 
@@ -42,7 +42,7 @@ export default function TopBar() {
           }}
           onClick={() => router.push('/')}
         >
-          {/* <Image src={logoCA} alt="Class Acts Logo" height={25} /> */}
+          <Image src={logoCA} alt="Class Acts Logo" height={25} />
         </Box>
         <Typography
           variant="h6"
@@ -81,14 +81,13 @@ export default function TopBar() {
           open={Boolean(anchorEl)}
           onClose={handleClose}
         >
-          <MenuItem onClick={() => handleMenuItemClick('/auth/signin')}>
-            Sign Out
+          <MenuItem onClick={() => handleMenuItemClick('/')}>
+            Home
           </MenuItem>
           <MenuItem onClick={() => handleMenuItemClick('/calendar')}>
             Calendar
           </MenuItem>
         </Menu>
-        <UserButton />
       </Toolbar>
     </AppBar>
   );
