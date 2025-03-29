@@ -2,7 +2,7 @@ import UserButton from '@/app/components/user-button';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 
-export default function DashboardPage() {
+export default function EventsPage() {
 
   return (
     <Box
@@ -16,7 +16,7 @@ export default function DashboardPage() {
       }}
     >
       <Typography variant="h4" component="h1" gutterBottom>
-        Calendar
+        Events
       </Typography>
       <UserButton />
     </Box>
