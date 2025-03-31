@@ -1,4 +1,3 @@
-import UserButton from '@/app/components/user-button';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 
@@ -6,19 +5,17 @@ export default function AccountPage() {
 
   return (
     <Box
+      component="main"
       sx={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        minHeight: '100vh',
-        padding: 2,
+        flexGrow: 1,
+        p: 3,
+        width: { sm: `calc(100% - 65px)` },
+        ml: { sm: `65px` },
       }}
     >
-      <Typography variant="h4" component="h1" gutterBottom>
-        Account
+      <Typography variant="h4" component="h1" gutterBottom sx={{ mb: 4 }}>
+        Account Overview
       </Typography>
-      <UserButton />
     </Box>
   );
 }
