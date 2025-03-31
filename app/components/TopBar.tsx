@@ -150,7 +150,6 @@ export default function TopBar() {
         sx={{
           bgcolor: theme.palette.primary.main,
           ml: { sm: `${miniDrawerWidth}px` },
-          width: { sm: `calc(100% - ${miniDrawerWidth}px)` }
         }}
       >
         <Toolbar sx={{ justifyContent: 'space-between' }}>
@@ -296,6 +295,7 @@ export default function TopBar() {
           sx={{
             display: { xs: 'none', sm: 'block' },
             '& .MuiDrawer-paper': {
+              mt: '65px',
               boxSizing: 'border-box',
               width: miniDrawerWidth,
               bgcolor: 'white',
