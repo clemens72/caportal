@@ -243,11 +243,11 @@ export default function TopBar() {
               {username}
             </MenuItem>
             <Divider />
-            <MenuItem onClick={() => handleNavClick('/account')}>
+            <MenuItem onClick={() => handleNavClick('/admin')}>
               <ListItemIcon>
                 <SettingsIcon fontSize="small" />
               </ListItemIcon>
-              Account settings
+              Admin Settings
             </MenuItem>
             <Divider />
             <MenuItem onClick={() => signOut({ callbackUrl: '/auth/signin' })}>
