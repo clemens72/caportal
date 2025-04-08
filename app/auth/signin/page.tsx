@@ -1,9 +1,8 @@
-//app/auth/signin/page.tsx
 'use client';
 
 import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { signIn } from 'next-auth/react';
 import Button from '@mui/material/Button';
 import Box from '@mui/material/Box';
@@ -14,31 +13,52 @@ import GoogleIcon from '@mui/icons-material/Google';
 export default function SignInPage() {
   const { data: session } = useSession();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
 
+  const callbackUrl = searchParams?.get('callbackUrl') || '/';
+
   useEffect(() => {
     if (session?.user) {
-      router.push('/');
+      router.push(callbackUrl);
     }
-  }, [session, router]);
+  }, [session, router, callbackUrl]);
 
   const handleCredentialSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
 
-    const result = await signIn('credentials', {
-      username,
-      password,
-      redirect: false,
-      callbackUrl: '/',
-    });
+    try {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username, password }),
+      });
 
-    if (result?.error) {
-      setError(result.error);
-    } else if (result?.url) {
-      router.push(result.url);
+      const data = await response.json();
+
+      if (response.ok) {
+        const result = await signIn('credentials', {
+          username,
+          password,
+          redirect: false,
+          callbackUrl,
+        });
+
+        if (result?.error) {
+          setError(result.error);
+        } else if (result?.url) {
+          router.push(result.url);
+        }
+      } else {
+        setError(data.error || 'Authentication failed');
+      }
+    } catch (error) {
+      setError('Authentication failed');
     }
   };
 
@@ -56,7 +76,7 @@ export default function SignInPage() {
       <Typography variant="h1" component="h1" gutterBottom>
         Class Acts Portal
       </Typography>
-      <Typography variant="h5" component="h1" gutterBottom>
+      <Typography variant="h5" component="h2" gutterBottom>
         You are required to sign in to access this content.
       </Typography>
 
@@ -108,30 +128,12 @@ export default function SignInPage() {
       <Button
         fullWidth
         variant="outlined"
-        onClick={() => signIn('google', { callbackUrl: '/' })}
-        sx={{ maxWidth: 30 }}
+        onClick={() => signIn('google', { callbackUrl })}
+        sx={{ maxWidth: 300 }}
+        startIcon={<GoogleIcon />}
       >
-        <GoogleIcon />
+        Google
       </Button>
     </Box>
   );
 }
-
-/*   return (
-    <Box
-      sx={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        minHeight: '100vh',
-        padding: 2,
-      }}
-    >
-      <Typography variant="h4" component="h1" gutterBottom>
-        You must be signed in to access this content.
-      </Typography>
-      <Button onClick={() => signIn('google', { callbackUrl: '/' })}>Sign In</Button>
-    </Box>
-  );
-} */

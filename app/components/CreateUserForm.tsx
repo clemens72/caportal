@@ -7,12 +7,14 @@ interface FormData {
   username: string;
   firstName: string;
   lastName: string;
+  password: string;
 }
 
 const defaultFormData: FormData = {
   username: '',
   firstName: '',
   lastName: '',
+  password: '',
 };
 
 interface CreateUserFormProps {
@@ -91,6 +93,15 @@ export default function CreateUserForm({ onUserCreated }: CreateUserFormProps) {
             label="Username"
             name="username"
             value={formData.username}
+            onChange={handleChange}
+            required
+            fullWidth
+          />
+          <TextField
+            label="Password"
+            name="password"
+            type="password"
+            value={formData.password}
             onChange={handleChange}
             required
             fullWidth
