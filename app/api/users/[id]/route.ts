@@ -18,11 +18,14 @@ const config = {
     },
 };
 
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
-    const userId = params.id;
-
+export async function DELETE(
+    request: NextRequest,
+    { params }: { params: { id: string } } | { params: Promise<{ id: string }> }
+  ) {
+    const userId = await Promise.resolve(params).then(p => p.id);
+  
     if (!userId) {
-        return NextResponse.json({ error: 'Missing user ID' }, { status: 400 });
+      return NextResponse.json({ error: 'Missing user ID' }, { status: 400 });
     }
 
     try {
