@@ -1,10 +1,11 @@
-// app/(dashboard)/admin/page.tsx
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Grid from '@mui/material/Grid';
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
 
-import UserList from '@/app/components/UserList';
 import CreateUserForm from '@/app/components/CreateUserForm';
+import UserTable from '@/app/components/UserTable';
 
 export default function AdminPage() {
   return (
@@ -22,10 +23,21 @@ export default function AdminPage() {
       </Typography>
       <Grid container spacing={3}>
         <Grid item xs={12} md={6}>
-        <CreateUserForm />
+          <Card>
+            <CardContent>
+              <Typography variant="h6" gutterBottom>
+                Create New User
+              </Typography>
+              <CreateUserForm />
+            </CardContent>
+          </Card>
         </Grid>
         <Grid item xs={12} md={6}>
-          <UserList />
+          <Card>
+            <CardContent>
+              <UserTable />
+            </CardContent>
+          </Card>
         </Grid>
       </Grid>
     </Box>

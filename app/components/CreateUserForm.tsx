@@ -1,8 +1,7 @@
-// app/components/CreateUserForm.tsx
 'use client';
 
 import React, { useState } from 'react';
-import { TextField, Button, Box } from '@mui/material';
+import { TextField, Button, Box, Alert, Snackbar } from '@mui/material';
 
 interface FormData {
   username: string;
@@ -16,35 +15,36 @@ const defaultFormData: FormData = {
   lastName: '',
 };
 
-export default function CreateUserForm() {
+interface CreateUserFormProps {
+  onUserCreated?: () => void;
+}
+
+export default function CreateUserForm({ onUserCreated }: CreateUserFormProps) {
   const [formData, setFormData] = useState<FormData>(defaultFormData);
-  const [submissionStatus, setSubmissionStatus] = useState<string>('');
+  const [submitting, setSubmitting] = useState(false);
+  const [snackbar, setSnackbar] = useState<{
+    open: boolean;
+    message: string;
+    severity: 'success' | 'error';
+  }>({
+    open: false,
+    message: '',
+    severity: 'success',
+  });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value, type } = e.target;
-
-    setFormData(prevData => {
-      if (type === 'checkbox' && e.target instanceof HTMLInputElement) {
-        return {
-          ...prevData,
-          [name]: e.target.checked,
-        };
-      } else {
-        return {
-          ...prevData,
-          [name]: value,
-        };
-      }
-    });
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSubmissionStatus('Submitting...');
+    setSubmitting(true);
 
     try {
-      // In a real application, you would send this data to your Next.js API route
-      // For example:
       const response = await fetch('/api/users/add', {
         method: 'POST',
         headers: {
@@ -52,69 +52,91 @@ export default function CreateUserForm() {
         },
         body: JSON.stringify(formData),
       });
-      const data = await response.json();
-      if (response.ok) {
-        setSubmissionStatus('User created successfully!');
-        setFormData(defaultFormData); // Reset the form
-      } else {
-        setSubmissionStatus(`Error creating user: ${data.error || response.statusText}`);
-      }
 
-      //// For this example, we'll just log the data
-      //console.log('Form Data:', formData);
-      //setSubmissionStatus('Data submitted (API call not implemented in this example)');
-      //setFormData(defaultFormData); // Reset the form
-    } catch (error: any) {
-      setSubmissionStatus(`Error submitting form: ${error.message}`);
-      console.error('Error creating user:', error);
+      const data = await response.json();
+
+      if (response.ok) {
+        setSnackbar({
+          open: true,
+          message: 'User created successfully!',
+          severity: 'success',
+        });
+        setFormData(defaultFormData);
+        if (onUserCreated) {
+          onUserCreated();
+        }
+      } else {
+        throw new Error(data.error || 'Failed to create user');
+      }
+    } catch (error) {
+      setSnackbar({
+        open: true,
+        message: error instanceof Error ? error.message : 'Failed to create user',
+        severity: 'error',
+      });
+    } finally {
+      setSubmitting(false);
     }
   };
 
+  const handleCloseSnackbar = () => {
+    setSnackbar(prev => ({ ...prev, open: false }));
+  };
+
   return (
-    <Box sx={{ maxWidth: 600, mx: 'auto', mt: 8, p: 3, border: '1px solid #ccc', borderRadius: 1, boxShadow: 1 }}>
-      <h2 style={{ marginBottom: '1rem' }}>Create New User</h2>
+    <Box sx={{ maxWidth: '100%', mb: 4 }}>
       <form onSubmit={handleSubmit}>
-        <Box sx={{ display: 'flex', gap: 2 }}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+          <TextField
+            label="Username"
+            name="username"
+            value={formData.username}
+            onChange={handleChange}
+            required
+            fullWidth
+          />
           <TextField
             label="First Name"
-            id="firstName"
             name="firstName"
             value={formData.firstName}
             onChange={handleChange}
             required
             fullWidth
-            margin="normal"
           />
-
           <TextField
             label="Last Name"
-            id="lastName"
             name="lastName"
             value={formData.lastName}
             onChange={handleChange}
             required
             fullWidth
-            margin="normal"
           />
+          <Button
+            type="submit"
+            variant="contained"
+            color="primary"
+            disabled={submitting}
+            sx={{ mt: 2 }}
+          >
+            {submitting ? 'Creating...' : 'Create User'}
+          </Button>
         </Box>
-
-        <TextField
-          label="Username"
-          id="username"
-          name="username"
-          value={formData.username}
-          onChange={handleChange}
-          required
-          fullWidth
-          margin="normal"
-        />
-
-        <Button type="submit" variant="contained" color="primary" sx={{ mt: 2 }}>
-          Create User
-        </Button>
-
-        {submissionStatus && <p style={{ marginTop: '1rem' }}>{submissionStatus}</p>}
       </form>
+
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={6000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert
+          onClose={handleCloseSnackbar}
+          severity={snackbar.severity}
+          sx={{ width: '100%' }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 }
