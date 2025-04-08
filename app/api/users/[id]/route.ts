@@ -17,14 +17,14 @@ const config = {
 };
 
 export async function DELETE(
-    request: NextRequest,
-    { params }: { params: { id: string } }
-  ) {
-    const { id: userId } = await Promise.resolve(params);
-  
-    if (!userId) {
-      return NextResponse.json({ error: 'Missing user ID' }, { status: 400 });
-    }
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id: userId } = await params;
+
+  if (!userId) {
+    return NextResponse.json({ error: 'Missing user ID' }, { status: 400 });
+  }
 
   try {
     const connection = new Connection(config);
