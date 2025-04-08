@@ -1,3 +1,4 @@
+// app/layout.tsx
 import * as React from 'react';
 import { ThemeProvider } from '@mui/material/styles';
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v15-appRouter';
@@ -5,10 +6,10 @@ import CssBaseline from '@mui/material/CssBaseline';
 import theme from './theme';
 import TimeProvider from './components/Providers/TimeProvider';
 import { SessionProvider } from 'next-auth/react';
-import { auth } from '../auth';
+import { auth } from './auth'; // Import the auth function
 
 export default async function RootLayout(props: { children: React.ReactNode }) {
-  const session = await auth();
+  const session = await auth(); // Use the auth() function
 
   return (
     <html lang="en" suppressHydrationWarning>
