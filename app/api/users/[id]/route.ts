@@ -20,7 +20,7 @@ export async function DELETE(
     request: NextRequest,
     { params }: { params: { id: string } }
   ) {
-    const userId = String((await Promise.resolve(params)).id);
+    const { id: userId } = await Promise.resolve(params);
   
     if (!userId) {
       return NextResponse.json({ error: 'Missing user ID' }, { status: 400 });
