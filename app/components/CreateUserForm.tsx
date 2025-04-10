@@ -5,16 +5,14 @@ import { TextField, Button, Box, Alert, Snackbar } from '@mui/material';
 
 interface FormData {
   username: string;
-  firstName: string;
-  lastName: string;
-  password: string;
+  first_name: string;
+  last_name: string;
 }
 
 const defaultFormData: FormData = {
   username: '',
-  firstName: '',
-  lastName: '',
-  password: '',
+  first_name: '',
+  last_name: '',
 };
 
 interface CreateUserFormProps {
@@ -98,26 +96,17 @@ export default function CreateUserForm({ onUserCreated }: CreateUserFormProps) {
             fullWidth
           />
           <TextField
-            label="Password"
-            name="password"
-            type="password"
-            value={formData.password}
-            onChange={handleChange}
-            required
-            fullWidth
-          />
-          <TextField
             label="First Name"
-            name="firstName"
-            value={formData.firstName}
+            name="first_name"
+            value={formData.first_name}
             onChange={handleChange}
             required
             fullWidth
           />
           <TextField
             label="Last Name"
-            name="lastName"
-            value={formData.lastName}
+            name="last_name"
+            value={formData.last_name}
             onChange={handleChange}
             required
             fullWidth

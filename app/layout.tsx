@@ -6,10 +6,10 @@ import CssBaseline from '@mui/material/CssBaseline';
 import theme from './theme';
 import TimeProvider from './components/Providers/TimeProvider';
 import { SessionProvider } from 'next-auth/react';
-import { auth } from './auth'; // Import the auth function
+import { auth } from './auth';
 
 export default async function RootLayout(props: { children: React.ReactNode }) {
-  const session = await auth(); // Use the auth() function
+  const session = await auth();
 
   return (
     <html lang="en" suppressHydrationWarning>

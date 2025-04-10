@@ -1,95 +1,85 @@
+// app/api/users/add/route.ts
 import { NextResponse, NextRequest } from 'next/server';
-import { Redis } from '@upstash/redis';
+import { Connection, Request, TYPES } from 'tedious';
 import { v4 as uuidv4 } from 'uuid';
-import bcrypt from 'bcryptjs';
 
-const redis = new Redis({
-  url: process.env.UPSTASH_REDIS_URL!,
-  token: process.env.UPSTASH_REDIS_TOKEN!,
-});
-
-// Create test user if it doesn't exist
-async function ensureTestUser() {
-  const testUsername = 'admin';
-  const testPassword = '$2b$10$Se5BtTmsZ6QFm4HULjdCSei9lYHVOrcpBZGZQK33DyHd4mgtQdp06';
-  
-  // Check if test user exists
-  const existingId = await redis.get(`username:${testUsername}`);
-  if (!existingId) {
-    const id = uuidv4();
-    const hashedPassword = await bcrypt.hash(testPassword, 10);
-    const createdAt = new Date().toISOString();
-
-    // Create test user
-    await redis.hset(`user:${id}`, {
-      username: testUsername,
-      firstName: 'Test',
-      lastName: 'Admin',
-      password: hashedPassword,
-      createdAt,
-      lastModification: createdAt,
-      enabled: '1'
-    });
-
-    await redis.sadd('users', id);
-    await redis.set(`username:${testUsername}`, id);
-    
-    console.log('Test user created');
-  }
-}
-
-// Create test user on startup
-ensureTestUser().catch(console.error);
+// Database connection configuration (move these to environment variables in production)
+const config = {
+    server: (process.env.SQL_SERVER_HOST) as string,
+    authentication: {
+      type: 'default' as 'default',
+      options: {
+        userName: process.env.SQL_SERVER_USER,
+        password: process.env.SQL_SERVER_PASSWORD,
+      },
+    },
+    options: {
+      port: parseInt(process.env.SQL_SERVER_PORT || '1433', 10),
+      database: process.env.SQL_SERVER_DATABASE,
+      trustServerCertificate: true,
+    },
+  };
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { username, firstName, lastName, password } = body;
+    const { username, first_name, last_name } = body;
 
-    if (!username || !firstName || !lastName || !password) {
+    if (!username || !first_name || !last_name) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
-    // Check if username already exists
-    const existingId = await redis.get(`username:${username}`);
-    if (existingId) {
-      return NextResponse.json({ error: 'Username already exists' }, { status: 400 });
-    }
+    const connection = new Connection(config);
 
-    // Hash the password
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
+    await new Promise((resolve, reject) => {
+      connection.on('connect', (err) => {
+        if (err) {
+          console.error('Connection error:', err);
+          reject(err);
+        } else {
+          console.log('Connected to SQL Server for user creation');
+          resolve(null);
+        }
+      });
 
-    const id = uuidv4();
-    const createdAt = new Date().toISOString();
-
-    // Create user hash
-    await redis.hset(`user:${id}`, {
-      username,
-      firstName,
-      lastName,
-      password: hashedPassword,
-      createdAt,
-      lastModification: createdAt,
-      enabled: '1'
+      connection.connect();
     });
 
-    // Add user ID to users set
-    await redis.sadd('users', id);
+    const id = uuidv4();
+    const createdAt = new Date();
 
-    // Create username to ID mapping for login
-    await redis.set(`username:${username}`, id);
+    const sql = `
+      INSERT INTO users (id, created_at, last_modification, enabled, username, first_name, last_name)
+      VALUES (@id, @createdAt, @lastModification, @enabled, @username, @first_name, @last_name)
+    `;
 
-    return NextResponse.json({ 
-      message: 'User created successfully', 
-      userId: id 
-    }, { status: 201 });
+    await new Promise((resolve, reject) => {
+      const request = new Request(sql, (err) => {
+        if (err) {
+          console.error('Insert error:', err);
+          reject(err);
+        } else {
+          console.log('User created successfully');
+          resolve(null);
+        }
+      });
+
+      request.addParameter('id', TYPES.Char, id);
+      request.addParameter('createdAt', TYPES.DateTime, createdAt);
+      request.addParameter('lastModification', TYPES.DateTime, createdAt); // Setting to creation time for now
+      request.addParameter('enabled', TYPES.Bit, true); // Default to enabled
+      request.addParameter('username', TYPES.VarChar, username);
+      request.addParameter('first_name', TYPES.VarChar, first_name);
+      request.addParameter('last_name', TYPES.VarChar, last_name);
+
+      connection.execSql(request);
+    });
+
+    connection.close();
+    return NextResponse.json({ message: 'User created successfully', userId: id }, { status: 201 });
 
   } catch (error) {
     console.error('Error creating user:', error);
-    return NextResponse.json({ 
-      error: 'Failed to create user', 
-      details: error instanceof Error ? error.message : String(error) 
-    }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to create user', details: error instanceof Error ? error.message : String(error) }, { status: 500 });
   }
 }
