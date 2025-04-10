@@ -13,6 +13,8 @@ import CreateTaskForm from '@/app/components/Admin/Forms/CreateTaskForm';
 import TaskTable from '@/app/components/Admin/Tables/TaskTable';
 import CreateProductForm from '@/app/components/Admin/Forms/CreateProductForm';
 import ProductTable from '@/app/components/Admin/Tables/ProductTable';
+import CreateOrganizationForm from '@/app/components/Admin/Forms/CreateOrganizationForm';
+import OrganizationTable from '@/app/components/Admin/Tables/OrganizationTable';
 import AdminSelector from '@/app/components/Admin/AdminSelector';
 
 export default function AdminPage() {
@@ -81,6 +83,28 @@ export default function AdminPage() {
               <Card>
                 <CardContent>
                   <ProductTable />
+                </CardContent>
+              </Card>
+            </Grid>
+          </>
+        );
+      case 'Organizations':
+        return (
+          <>
+            <Grid item xs={12} md={6}>
+              <Card>
+                <CardContent>
+                  <Typography variant="h6" gutterBottom>
+                    Create New Organization
+                  </Typography>
+                  <CreateOrganizationForm />
+                </CardContent>
+              </Card>
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <Card>
+                <CardContent>
+                  <OrganizationTable />
                 </CardContent>
               </Card>
             </Grid>
