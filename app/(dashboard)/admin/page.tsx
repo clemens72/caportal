@@ -15,6 +15,8 @@ import CreateProductForm from '@/app/components/Admin/Forms/CreateProductForm';
 import ProductTable from '@/app/components/Admin/Tables/ProductTable';
 import CreateOrganizationForm from '@/app/components/Admin/Forms/CreateOrganizationForm';
 import OrganizationTable from '@/app/components/Admin/Tables/OrganizationTable';
+import CreateEventForm from '@/app/components/Admin/Forms/CreateEventForm';
+import EventTable from '@/app/components/Admin/Tables/EventTable';
 import AdminSelector from '@/app/components/Admin/AdminSelector';
 
 export default function AdminPage() {
@@ -105,6 +107,28 @@ export default function AdminPage() {
               <Card>
                 <CardContent>
                   <OrganizationTable />
+                </CardContent>
+              </Card>
+            </Grid>
+          </>
+        );
+      case 'Events':
+        return (
+          <>
+            <Grid item xs={12} md={6}>
+              <Card>
+                <CardContent>
+                  <Typography variant="h6" gutterBottom>
+                    Create New Event
+                  </Typography>
+                  <CreateEventForm />
+                </CardContent>
+              </Card>
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <Card>
+                <CardContent>
+                  <EventTable />
                 </CardContent>
               </Card>
             </Grid>

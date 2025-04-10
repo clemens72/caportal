@@ -8,8 +8,8 @@ export const entities = [
   'Products',
   'Organizations',
   'Events',
-  'Categories',
-  'Addresses'
+  //'Categories',
+  //'Addresses'
 ];
 
 interface AdminSelectorProps {
