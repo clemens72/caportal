@@ -7,11 +7,13 @@ import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import { useState } from 'react';
 
-import CreateUserForm from '@/app/components/CreateUserForm';
-import UserTable from '@/app/components/UserTable';
-import CreateTaskForm from '@/app/components/CreateTaskForm';
-import TaskTable from '@/app/components/TaskTable';
-import AdminSelector from '@/app/components/AdminSelector';
+import CreateUserForm from '@/app/components/Admin/Forms/CreateUserForm';
+import UserTable from '@/app/components/Admin/Tables/UserTable';
+import CreateTaskForm from '@/app/components/Admin/Forms/CreateTaskForm';
+import TaskTable from '@/app/components/Admin/Tables/TaskTable';
+import CreateProductForm from '@/app/components/Admin/Forms/CreateProductForm';
+import ProductTable from '@/app/components/Admin/Tables/ProductTable';
+import AdminSelector from '@/app/components/Admin/AdminSelector';
 
 export default function AdminPage() {
   const [selectedEntity, setSelectedEntity] = useState('Users');
@@ -57,6 +59,28 @@ export default function AdminPage() {
               <Card>
                 <CardContent>
                   <TaskTable />
+                </CardContent>
+              </Card>
+            </Grid>
+          </>
+        );
+      case 'Products':
+        return (
+          <>
+            <Grid item xs={12} md={6}>
+              <Card>
+                <CardContent>
+                  <Typography variant="h6" gutterBottom>
+                    Create New Product
+                  </Typography>
+                  <CreateProductForm />
+                </CardContent>
+              </Card>
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <Card>
+                <CardContent>
+                  <ProductTable />
                 </CardContent>
               </Card>
             </Grid>
