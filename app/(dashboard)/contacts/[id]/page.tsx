@@ -16,33 +16,29 @@ import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import CategoryIcon from '@mui/icons-material/Category';
 import dayjs from 'dayjs';
 
-interface Event {
+interface User {
   id: string;
-  name: string;
-  price: string;
-  leader: string;
-  location: string;
-  start_time: string;
-  end_time: string;
-  description: string;
-  booking_contact: string;
+  username: string;
+  first_name: string;
+  last_name: string;
+  created_at: string;
 }
 
-export default function EventDetailsPage() {
+export default function UserDetailsPage() {
   const params = useParams();
-  const [event, setEvent] = useState<Event | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchEvent = async () => {
+    const fetchUser = async () => {
       try {
-        const response = await fetch(`/api/events/${params.id}`);
+        const response = await fetch(`/api/users/${params.id}`);
         if (!response.ok) {
-          throw new Error('Failed to fetch event details');
+          throw new Error('Failed to fetch user details');
         }
         const data = await response.json();
-        setEvent(data);
+        setUser(data);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An error occurred');
       } finally {
@@ -51,7 +47,7 @@ export default function EventDetailsPage() {
     };
 
     if (params.id) {
-      fetchEvent();
+      fetchUser();
     }
   }, [params.id]);
 
@@ -71,10 +67,10 @@ export default function EventDetailsPage() {
     );
   }
 
-  if (!event) {
+  if (!user) {
     return (
       <Box sx={{ p: 3 }}>
-        <Alert severity="info">Event not found</Alert>
+        <Alert severity="info">User not found</Alert>
       </Box>
     );
   }
@@ -94,7 +90,7 @@ const formatDateTime = (dateTime: string) => {
       }}
     >
       <Typography variant="h4" component="h1" gutterBottom sx={{ mb: 4 }}>
-        Event Details
+        Contact Details
       </Typography>
 
       <Grid container spacing={3}>
@@ -103,7 +99,7 @@ const formatDateTime = (dateTime: string) => {
             <CardContent>
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
                 <BusinessIcon sx={{ fontSize: 40, mr: 2, color: 'primary.main' }} />
-                <Typography variant="h5">{event.name}</Typography>
+                <Typography variant="h5">{user.first_name + " " + user.last_name}</Typography>
               </Box>
 
               <Grid container spacing={3}>
@@ -112,10 +108,10 @@ const formatDateTime = (dateTime: string) => {
                     <CardContent>
                       <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                         <CategoryIcon sx={{ mr: 1, color: 'primary.main' }} />
-                        <Typography variant="h6">Price</Typography>
+                        <Typography variant="h6">Username</Typography>
                       </Box>
                       <Chip
-                        label={event.price}
+                        label={user.username}
                         sx={{ mt: 1 }}
                       />
                     </CardContent>
@@ -127,10 +123,9 @@ const formatDateTime = (dateTime: string) => {
                     <CardContent>
                       <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                         <CalendarTodayIcon sx={{ mr: 1, color: 'primary.main' }} />
-                        <Typography variant="h6">Date/Time</Typography>
+                        <Typography variant="h6">Created</Typography>
                       </Box>
-                      <Typography>Start: {formatDateTime(event.start_time)}</Typography>
-                      <Typography>End: {formatDateTime(event.end_time)}</Typography>
+                      <Typography>{formatDateTime(user.created_at)}</Typography>
                     </CardContent>
                   </Card>
                 </Grid>
@@ -140,9 +135,10 @@ const formatDateTime = (dateTime: string) => {
                     <CardContent>
                       <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                         <LocationOnIcon sx={{ mr: 1, color: 'primary.main' }} />
-                        <Typography variant="h6">Leader</Typography>
+                        <Typography variant="h6">Name</Typography>
                       </Box>
-                      <Typography>{event.leader}</Typography>
+                      <Typography>{user.first_name}</Typography>
+                      <Typography>{user.last_name}</Typography>
                     </CardContent>
                   </Card>
                 </Grid>

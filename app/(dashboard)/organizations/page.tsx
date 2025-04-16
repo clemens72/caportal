@@ -6,6 +6,7 @@ import Grid from '@mui/material/Grid';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import SearchBox from '@/app/components/SearchBox';
+import OrganizationTable from '@/app/components/Admin/Tables/OrganizationTable';
 
 export default function OrganizationsPage() {
 
@@ -29,6 +30,15 @@ export default function OrganizationsPage() {
         <Grid item xs={12}>
           <Card>
             <SearchBox entityType="organizations" />
+          </Card>
+        </Grid>
+
+         {/* Organizations Table */}
+         <Grid item xs={12}>
+          <Card>
+            <CardContent>
+              <OrganizationTable />
+            </CardContent>
           </Card>
         </Grid>
 

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { 
+import {
   Box,
   Table,
   TableBody,
@@ -18,6 +18,7 @@ import {
 } from '@mui/material';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import DeleteIcon from '@mui/icons-material/Delete';
+import { useRouter } from 'next/navigation';
 
 interface User {
   id: string;
@@ -27,6 +28,7 @@ interface User {
 }
 
 export default function UserTable({ onRefresh }: { onRefresh?: () => void }) {
+  const router = useRouter();
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -68,7 +70,8 @@ export default function UserTable({ onRefresh }: { onRefresh?: () => void }) {
     }
   };
 
-  const handleDelete = async (userId: string) => {
+  const handleDelete = async (e: React.MouseEvent, userId: string) => {
+    e.stopPropagation(); // Prevent row click when clicking delete button
     try {
       const response = await fetch(`/api/users/${userId}`, {
         method: 'DELETE',
@@ -83,7 +86,7 @@ export default function UserTable({ onRefresh }: { onRefresh?: () => void }) {
         message: 'User deleted successfully',
         severity: 'success',
       });
-      
+
       // Refresh the user list
       fetchUsers();
     } catch (error) {
@@ -93,6 +96,10 @@ export default function UserTable({ onRefresh }: { onRefresh?: () => void }) {
         severity: 'error',
       });
     }
+  };
+
+  const handleRowClick = (userId: string) => {
+    router.push(`/contacts/${userId}`);
   };
 
   const handleCloseSnackbar = () => {
@@ -109,7 +116,7 @@ export default function UserTable({ onRefresh }: { onRefresh?: () => void }) {
           <RefreshIcon />
         </IconButton>
       </Box>
-      
+
       {loading ? (
         <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
           <CircularProgress />
@@ -131,14 +138,24 @@ export default function UserTable({ onRefresh }: { onRefresh?: () => void }) {
             </TableHead>
             <TableBody>
               {users.map((user) => (
-                <TableRow key={user.id}>
+                <TableRow
+                  key={user.id}
+                  onClick={() => handleRowClick(user.id)}
+                  sx={{
+                    cursor: 'pointer',
+                    '&:hover': {
+                      backgroundColor: 'rgba(0, 0, 0, 0.04)',
+                    },
+                    transition: 'background-color 0.2s ease'
+                  }}
+                >
                   <TableCell>{user.username}</TableCell>
                   <TableCell>{user.first_name}</TableCell>
                   <TableCell>{user.last_name}</TableCell>
                   <TableCell align="right">
                     <IconButton
                       aria-label="delete user"
-                      onClick={() => handleDelete(user.id)}
+                      onClick={(e) => handleDelete(e, user.id)}
                       color="error"
                       size="small"
                     >

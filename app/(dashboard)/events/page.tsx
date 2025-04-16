@@ -6,6 +6,7 @@ import Grid from '@mui/material/Grid';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import SearchBox from '@/app/components/SearchBox';
+import EventTable from '@/app/components/Admin/Tables/EventTable';
 
 export default function EventsPage() {
 
@@ -29,6 +30,15 @@ export default function EventsPage() {
         <Grid item xs={12}>
           <Card>
             <SearchBox entityType="events" />
+          </Card>
+        </Grid>
+
+        {/* Events Table */}
+        <Grid item xs={12}>
+          <Card>
+            <CardContent>
+              <EventTable />
+            </CardContent>
           </Card>
         </Grid>
 

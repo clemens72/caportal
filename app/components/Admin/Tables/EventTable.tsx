@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { 
+import {
   Box,
   Table,
   TableBody,
@@ -26,6 +26,7 @@ import {
 } from '@mui/material';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import DeleteIcon from '@mui/icons-material/Delete';
+import { useRouter } from 'next/navigation';
 import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
 import { PickersDay, PickersDayProps } from '@mui/x-date-pickers/PickersDay';
 import Badge from '@mui/material/Badge';
@@ -45,6 +46,7 @@ interface Event {
 }
 
 export default function EventTable({ onRefresh }: { onRefresh?: () => void }) {
+  const router = useRouter();
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -87,7 +89,8 @@ export default function EventTable({ onRefresh }: { onRefresh?: () => void }) {
     }
   };
 
-  const handleDelete = async (eventId: string) => {
+  const handleDelete = async (e: React.MouseEvent, eventId: string) => {
+    e.stopPropagation(); // Prevent row click when clicking delete button
     try {
       const response = await fetch(`/api/events/${eventId}`, {
         method: 'DELETE',
@@ -102,7 +105,7 @@ export default function EventTable({ onRefresh }: { onRefresh?: () => void }) {
         message: 'Event deleted successfully',
         severity: 'success',
       });
-      
+
       fetchEvents();
     } catch (error) {
       setSnackbar({
@@ -111,6 +114,10 @@ export default function EventTable({ onRefresh }: { onRefresh?: () => void }) {
         severity: 'error',
       });
     }
+  };
+
+  const handleRowClick = (eventId: string) => {
+    router.push(`/events/${eventId}`);
   };
 
   const handleCloseSnackbar = () => {
@@ -122,7 +129,7 @@ export default function EventTable({ onRefresh }: { onRefresh?: () => void }) {
   };
 
   const getEventsForDate = (date: Dayjs) => {
-    return events.filter(event => 
+    return events.filter(event =>
       dayjs(event.start_time).format('YYYY-MM-DD') === date.format('YYYY-MM-DD')
     );
   };
@@ -165,7 +172,7 @@ export default function EventTable({ onRefresh }: { onRefresh?: () => void }) {
               <Typography variant="h6" gutterBottom>
                 Event Calendar
               </Typography>
-              <DateCalendar 
+              <DateCalendar
                 value={selectedDate}
                 onChange={(newDate) => setSelectedDate(newDate)}
                 slots={{
@@ -229,7 +236,17 @@ export default function EventTable({ onRefresh }: { onRefresh?: () => void }) {
                 </TableHead>
                 <TableBody>
                   {events.map((event) => (
-                    <TableRow key={event.id}>
+                    <TableRow
+                      key={event.id}
+                      onClick={() => handleRowClick(event.id)}
+                      sx={{
+                        cursor: 'pointer',
+                        '&:hover': {
+                          backgroundColor: 'rgba(0, 0, 0, 0.04)',
+                        },
+                        transition: 'background-color 0.2s ease'
+                      }}
+                    >
                       <TableCell>
                         <Tooltip title={event.description}>
                           <span>{event.name}</span>
@@ -244,7 +261,7 @@ export default function EventTable({ onRefresh }: { onRefresh?: () => void }) {
                       <TableCell align="right">
                         <IconButton
                           aria-label="delete event"
-                          onClick={() => handleDelete(event.id)}
+                          onClick={(e) => handleDelete(e, event.id)}
                           color="error"
                           size="small"
                         >

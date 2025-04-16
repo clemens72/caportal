@@ -19,6 +19,7 @@ import {
 } from '@mui/material';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import DeleteIcon from '@mui/icons-material/Delete';
+import { useRouter } from 'next/navigation';
 
 interface Organization {
   id: string;
@@ -29,6 +30,7 @@ interface Organization {
 }
 
 export default function OrganizationTable({ onRefresh }: { onRefresh?: () => void }) {
+  const router = useRouter();
   const [organizations, setOrganizations] = useState<Organization[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -70,7 +72,8 @@ export default function OrganizationTable({ onRefresh }: { onRefresh?: () => voi
     }
   };
 
-  const handleDelete = async (organizationId: string) => {
+  const handleDelete = async (e: React.MouseEvent, organizationId: string) => {
+    e.stopPropagation(); // Prevent row click when clicking delete button
     try {
       const response = await fetch(`/api/organizations/${organizationId}`, {
         method: 'DELETE',
@@ -94,6 +97,10 @@ export default function OrganizationTable({ onRefresh }: { onRefresh?: () => voi
         severity: 'error',
       });
     }
+  };
+
+  const handleRowClick = (organizationId: string) => {
+    router.push(`/organizations/${organizationId}`);
   };
 
   const handleCloseSnackbar = () => {
@@ -148,7 +155,17 @@ export default function OrganizationTable({ onRefresh }: { onRefresh?: () => voi
             </TableHead>
             <TableBody>
               {organizations.map((org) => (
-                <TableRow key={org.id}>
+                <TableRow 
+                  key={org.id}
+                  onClick={() => handleRowClick(org.id)}
+                  sx={{ 
+                    cursor: 'pointer',
+                    '&:hover': { 
+                      backgroundColor: 'rgba(0, 0, 0, 0.04)',
+                    },
+                    transition: 'background-color 0.2s ease'
+                  }}
+                >
                   <TableCell>{org.name}</TableCell>
                   <TableCell>{org.address}</TableCell>
                   <TableCell>{org.year}</TableCell>
@@ -162,7 +179,7 @@ export default function OrganizationTable({ onRefresh }: { onRefresh?: () => voi
                   <TableCell align="right">
                     <IconButton
                       aria-label="delete organization"
-                      onClick={() => handleDelete(org.id)}
+                      onClick={(e) => handleDelete(e, org.id)}
                       color="error"
                       size="small"
                     >
