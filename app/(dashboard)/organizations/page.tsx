@@ -5,9 +5,6 @@ import Typography from '@mui/material/Typography';
 import Grid from '@mui/material/Grid';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
-import BusinessIcon from '@mui/icons-material/Business';
-import TimelineIcon from '@mui/icons-material/Timeline';
-import GroupIcon from '@mui/icons-material/Group';
 import SearchBox from '@/app/components/SearchBox';
 
 export default function OrganizationsPage() {
