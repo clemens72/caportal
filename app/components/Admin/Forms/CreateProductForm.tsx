@@ -7,32 +7,83 @@ import {
   Box,
   Alert,
   Snackbar,
+  FormControlLabel,
+  Switch,
+  Grid,
+  MenuItem,
+  Chip,
+  Autocomplete,
 } from '@mui/material';
+import { Product } from '@/app/types';
 
-interface FormData {
-  name: string;
-  gross_price: number;
-  note: string;
-  description: string;
-  booking_contact: string;
-  leader: string;
+interface FormData extends Omit<Product, 'id' | 'created_at' | 'updated_at'> {
+  categories: string[];
 }
 
 const defaultFormData: FormData = {
   name: '',
-  gross_price: 0,
-  note: '',
-  description: '',
+  website: '',
   booking_contact: '',
-  leader: ''
+  phone: '',
+  leader: '',
+  gross_price: 0,
+  fee_percent: 0,
+  exclusive: false,
+  agent: '',
+  size: '',
+  product_type: '',
+  categories: [],
+  description: '',
+  bio: '',
+  special_requirements: '',
+  business_cards: false,
+  active: true,
+  note: ''
 };
+
+const productTypes = [
+  'Production',
+  'Service',
+  'Merchandise'
+];
+
+const sizes = [
+  'Solo',
+  'Duo',
+  'Trio',
+  'Quartet',
+  'Quintet',
+  'Sextet',
+  'Full Band'
+];
+
+const categoryOptions = [
+  'Jazz',
+  'Rock',
+  'Pop',
+  'Classical',
+  'Blues',
+  'Country',
+  'Folk',
+  'Electronic',
+  'Hip Hop',
+  'R&B',
+  'World Music',
+  'Other'
+];
 
 interface CreateProductFormProps {
   onProductCreated?: () => void;
+  initialData?: Product;
+  mode?: 'create' | 'edit';
 }
 
-export default function CreateProductForm({ onProductCreated }: CreateProductFormProps) {
-  const [formData, setFormData] = useState<FormData>(defaultFormData);
+export default function CreateProductForm({ 
+  onProductCreated, 
+  initialData,
+  mode = 'create'
+}: CreateProductFormProps) {
+  const [formData, setFormData] = useState<FormData>(initialData || defaultFormData);
   const [submitting, setSubmitting] = useState(false);
   const [snackbar, setSnackbar] = useState<{
     open: boolean;
@@ -45,10 +96,12 @@ export default function CreateProductForm({ onProductCreated }: CreateProductFor
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
+    const { name, value, type, checked } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: name === 'gross_price' ? parseInt(value) || 0 : value,
+      [name]: type === 'checkbox' ? checked : 
+              type === 'number' ? parseFloat(value) || 0 : 
+              value,
     }));
   };
 
@@ -57,8 +110,14 @@ export default function CreateProductForm({ onProductCreated }: CreateProductFor
     setSubmitting(true);
 
     try {
-      const response = await fetch('/api/products/add', {
-        method: 'POST',
+      const url = mode === 'edit' 
+        ? `/api/products/${initialData?.id}` 
+        : '/api/products/add';
+      
+      const method = mode === 'edit' ? 'PUT' : 'POST';
+
+      const response = await fetch(url, {
+        method,
         headers: {
           'Content-Type': 'application/json',
         },
@@ -70,20 +129,19 @@ export default function CreateProductForm({ onProductCreated }: CreateProductFor
       if (response.ok) {
         setSnackbar({
           open: true,
-          message: 'Product created successfully!',
+          message: `Product ${mode === 'edit' ? 'updated' : 'created'} successfully!`,
           severity: 'success',
         });
-        setFormData(defaultFormData);
         if (onProductCreated) {
           onProductCreated();
         }
       } else {
-        throw new Error(data.error || 'Failed to create product');
+        throw new Error(data.error || `Failed to ${mode} product`);
       }
     } catch (error) {
       setSnackbar({
         open: true,
-        message: error instanceof Error ? error.message : 'Failed to create product',
+        message: error instanceof Error ? error.message : `Failed to ${mode} product`,
         severity: 'error',
       });
     } finally {
@@ -98,73 +156,253 @@ export default function CreateProductForm({ onProductCreated }: CreateProductFor
   return (
     <Box sx={{ maxWidth: '100%', mb: 4 }}>
       <form onSubmit={handleSubmit}>
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-          <TextField
-            label="Name"
-            name="name"
-            value={formData.name}
-            onChange={handleChange}
-            required
-            fullWidth
-          />
-          
-          <TextField
-            label="Gross Price"
-            name="gross_price"
-            type="number"
-            value={formData.gross_price}
-            onChange={handleChange}
-            required
-            fullWidth
-          />
+        <Grid container spacing={2}>
+          <Grid item xs={12}>
+            <TextField
+              label="Name"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              required
+              fullWidth
+            />
+          </Grid>
 
-          <TextField
-            label="Note"
-            name="note"
-            value={formData.note}
-            onChange={handleChange}
-            fullWidth
-          />
+          <Grid item xs={12} md={6}>
+            <TextField
+              label="Website"
+              name="website"
+              value={formData.website}
+              onChange={handleChange}
+              fullWidth
+            />
+          </Grid>
 
-          <TextField
-            label="Description"
-            name="description"
-            value={formData.description}
-            onChange={handleChange}
-            required
-            fullWidth
-            multiline
-            rows={4}
-          />
+          <Grid item xs={12} md={6}>
+            <TextField
+              label="Phone"
+              name="phone"
+              value={formData.phone}
+              onChange={handleChange}
+              fullWidth
+            />
+          </Grid>
 
-          <TextField
-            label="Booking Contact"
-            name="booking_contact"
-            value={formData.booking_contact}
-            onChange={handleChange}
-            required
-            fullWidth
-          />
+          <Grid item xs={12} md={6}>
+            <TextField
+              label="Booking Contact"
+              name="booking_contact"
+              value={formData.booking_contact}
+              onChange={handleChange}
+              required
+              fullWidth
+            />
+          </Grid>
 
-          <TextField
-            label="Leader"
-            name="leader"
-            value={formData.leader}
-            onChange={handleChange}
-            required
-            fullWidth
-          />
+          <Grid item xs={12} md={6}>
+            <TextField
+              label="Leader"
+              name="leader"
+              value={formData.leader}
+              onChange={handleChange}
+              required
+              fullWidth
+            />
+          </Grid>
 
-          <Button
-            type="submit"
-            variant="contained"
-            color="primary"
-            disabled={submitting}
-            sx={{ mt: 2 }}
-          >
-            {submitting ? 'Creating...' : 'Create Product'}
-          </Button>
-        </Box>
+          <Grid item xs={12} md={6}>
+            <TextField
+              label="Gross Price"
+              name="gross_price"
+              type="number"
+              value={formData.gross_price}
+              onChange={handleChange}
+              required
+              fullWidth
+              InputProps={{
+                startAdornment: '$',
+              }}
+            />
+          </Grid>
+
+          <Grid item xs={12} md={6}>
+            <TextField
+              label="Fee Percent"
+              name="fee_percent"
+              type="number"
+              value={formData.fee_percent}
+              onChange={handleChange}
+              required
+              fullWidth
+              InputProps={{
+                endAdornment: '%',
+              }}
+            />
+          </Grid>
+
+          <Grid item xs={12} md={6}>
+            <TextField
+              select
+              label="Product Type"
+              name="product_type"
+              value={formData.product_type}
+              onChange={handleChange}
+              required
+              fullWidth
+            >
+              {productTypes.map((type) => (
+                <MenuItem key={type} value={type}>
+                  {type}
+                </MenuItem>
+              ))}
+            </TextField>
+          </Grid>
+
+          <Grid item xs={12} md={6}>
+            <TextField
+              select
+              label="Size"
+              name="size"
+              value={formData.size}
+              onChange={handleChange}
+              required
+              fullWidth
+            >
+              {sizes.map((size) => (
+                <MenuItem key={size} value={size}>
+                  {size}
+                </MenuItem>
+              ))}
+            </TextField>
+          </Grid>
+
+          <Grid item xs={12}>
+            <Autocomplete
+              multiple
+              options={categoryOptions}
+              value={formData.categories}
+              onChange={(_, newValue) => {
+                setFormData(prev => ({ ...prev, categories: newValue }));
+              }}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="Categories"
+                  placeholder="Select categories"
+                />
+              )}
+              renderTags={(value, getTagProps) =>
+                value.map((option, index) => (
+                  <Chip
+                    label={option}
+                    {...getTagProps({ index })}
+                    key={option}
+                  />
+                ))
+              }
+            />
+          </Grid>
+
+          <Grid item xs={12}>
+            <TextField
+              label="Description"
+              name="description"
+              value={formData.description}
+              onChange={handleChange}
+              required
+              fullWidth
+              multiline
+              rows={4}
+            />
+          </Grid>
+
+          <Grid item xs={12}>
+            <TextField
+              label="Bio"
+              name="bio"
+              value={formData.bio}
+              onChange={handleChange}
+              fullWidth
+              multiline
+              rows={4}
+            />
+          </Grid>
+
+          <Grid item xs={12}>
+            <TextField
+              label="Special Requirements"
+              name="special_requirements"
+              value={formData.special_requirements}
+              onChange={handleChange}
+              fullWidth
+              multiline
+              rows={2}
+            />
+          </Grid>
+
+          <Grid item xs={12}>
+            <TextField
+              label="Note"
+              name="note"
+              value={formData.note}
+              onChange={handleChange}
+              fullWidth
+              multiline
+              rows={2}
+            />
+          </Grid>
+
+          <Grid item xs={12} md={4}>
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={formData.exclusive}
+                  onChange={handleChange}
+                  name="exclusive"
+                />
+              }
+              label="Exclusive"
+            />
+          </Grid>
+
+          <Grid item xs={12} md={4}>
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={formData.business_cards}
+                  onChange={handleChange}
+                  name="business_cards"
+                />
+              }
+              label="Business Cards"
+            />
+          </Grid>
+
+          <Grid item xs={12} md={4}>
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={formData.active}
+                  onChange={handleChange}
+                  name="active"
+                />
+              }
+              label="Active"
+            />
+          </Grid>
+
+          <Grid item xs={12}>
+            <Button
+              type="submit"
+              variant="contained"
+              color="primary"
+              disabled={submitting}
+              sx={{ mt: 2 }}
+            >
+              {submitting ? `${mode === 'edit' ? 'Updating' : 'Creating'}...` : `${mode === 'edit' ? 'Update' : 'Create'} Product`}
+            </Button>
+          </Grid>
+        </Grid>
       </form>
 
       <Snackbar

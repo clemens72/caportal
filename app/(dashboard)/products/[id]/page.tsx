@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Card from '@mui/material/Card';
@@ -10,6 +10,8 @@ import Grid from '@mui/material/Grid';
 import CircularProgress from '@mui/material/CircularProgress';
 import Alert from '@mui/material/Alert';
 import Chip from '@mui/material/Chip';
+import IconButton from '@mui/material/IconButton';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import BusinessIcon from '@mui/icons-material/Business';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import DescriptionIcon from '@mui/icons-material/Description';
@@ -34,6 +36,7 @@ import { Product } from '@/app/types';
 
 export default function ProductDetailsPage() {
   const params = useParams();
+  const router = useRouter();
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -131,9 +134,18 @@ export default function ProductDetailsPage() {
         ml: { sm: `65px` },
       }}
     >
-      <Typography variant="h4" component="h1" gutterBottom sx={{ mb: 4 }}>
-        Product Details
-      </Typography>
+      <Box sx={{ display: 'flex', alignItems: 'center', mb: 4 }}>
+        <IconButton 
+          onClick={() => router.back()} 
+          sx={{ mr: 2 }}
+          aria-label="back"
+        >
+          <ArrowBackIcon />
+        </IconButton>
+        <Typography variant="h4" component="h1" gutterBottom>
+          Product Details: {product.name}
+        </Typography>
+      </Box>
 
       {/* Entertainer Detail Section */}
       <Card sx={{ mb: 4 }}>
