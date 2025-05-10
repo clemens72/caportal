@@ -1,170 +1,102 @@
 'use client';
 
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
-import Grid from '@mui/material/Grid';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
-import { useState } from 'react';
+import Grid from '@mui/material/Grid';
+import CircularProgress from '@mui/material/CircularProgress';
+import Alert from '@mui/material/Alert';
+import Button from '@mui/material/Button';
+import Link from '@mui/material/Link';
+import PeopleIcon from '@mui/icons-material/People';
+import BusinessIcon from '@mui/icons-material/Business';
+import EventIcon from '@mui/icons-material/Event';
+import AssignmentIcon from '@mui/icons-material/Assignment';
+import FolderIcon from '@mui/icons-material/Folder';
+import { User } from '@/app/types';
 
-import CreateUserForm from '@/app/components/Admin/Forms/CreateUserForm';
-import UserTable from '@/app/components/Admin/Tables/UserTable';
-import CreateTaskForm from '@/app/components/Admin/Forms/CreateTaskForm';
-import TaskTable from '@/app/components/Admin/Tables/TaskTable';
-import CreateProductForm from '@/app/components/Admin/Forms/CreateProductForm';
-import ProductTable from '@/app/components/Admin/Tables/ProductTable';
-import CreateOrganizationForm from '@/app/components/Admin/Forms/CreateOrganizationForm';
-import OrganizationTable from '@/app/components/Admin/Tables/OrganizationTable';
-import CreateEventForm from '@/app/components/Admin/Forms/CreateEventForm';
-import EventTable from '@/app/components/Admin/Tables/EventTable';
-import AdminSelector from '@/app/components/Admin/AdminSelector';
+export default function DashboardPage() {
+  const router = useRouter();
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-export default function AdminDashboardPage() {
-  const [selectedEntity, setSelectedEntity] = useState('Users');
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const response = await fetch('/api/users/me');
+        if (!response.ok) {
+          throw new Error('Failed to fetch user details');
+        }
+        const data = await response.json();
+        setUser(data);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'An error occurred');
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const renderEntityComponents = () => {
-    switch (selectedEntity) {
-      case 'Users':
-        return (
-          <>
-            <Grid item xs={12} md={6}>
-              <Card>
-                <CardContent>
-                  <Typography variant="h6" gutterBottom>
-                    Create New User
-                  </Typography>
-                  <CreateUserForm />
-                </CardContent>
-              </Card>
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <Card>
-                <CardContent>
-                  <UserTable />
-                </CardContent>
-              </Card>
-            </Grid>
-          </>
-        );
-      case 'Tasks':
-        return (
-          <>
-            <Grid item xs={12} md={6}>
-              <Card>
-                <CardContent>
-                  <Typography variant="h6" gutterBottom>
-                    Create New Task
-                  </Typography>
-                  <CreateTaskForm />
-                </CardContent>
-              </Card>
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <Card>
-                <CardContent>
-                  <TaskTable />
-                </CardContent>
-              </Card>
-            </Grid>
-          </>
-        );
-      case 'Products':
-        return (
-          <>
-            <Grid item xs={12} md={6}>
-              <Card>
-                <CardContent>
-                  <Typography variant="h6" gutterBottom>
-                    Create New Product
-                  </Typography>
-                  <CreateProductForm />
-                </CardContent>
-              </Card>
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <Card>
-                <CardContent>
-                  <ProductTable />
-                </CardContent>
-              </Card>
-            </Grid>
-          </>
-        );
-      case 'Organizations':
-        return (
-          <>
-            <Grid item xs={12} md={6}>
-              <Card>
-                <CardContent>
-                  <Typography variant="h6" gutterBottom>
-                    Create New Organization
-                  </Typography>
-                  <CreateOrganizationForm />
-                </CardContent>
-              </Card>
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <Card>
-                <CardContent>
-                  <OrganizationTable />
-                </CardContent>
-              </Card>
-            </Grid>
-          </>
-        );
-      case 'Events':
-        return (
-          <>
-            <Grid item xs={12} md={6}>
-              <Card>
-                <CardContent>
-                  <Typography variant="h6" gutterBottom>
-                    Create New Event
-                  </Typography>
-                  <CreateEventForm />
-                </CardContent>
-              </Card>
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <Card>
-                <CardContent>
-                  <EventTable />
-                </CardContent>
-              </Card>
-            </Grid>
-          </>
-        );
-      default:
-        return (
-          <>
-            <Grid item xs={12} md={6}>
-              <Card>
-                <CardContent>
-                  <Typography variant="h6" gutterBottom>
-                    Create New {selectedEntity.slice(0, -1)}
-                  </Typography>
-                  <Typography color="textSecondary">
-                    Form coming soon...
-                  </Typography>
-                </CardContent>
-              </Card>
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <Card>
-                <CardContent>
-                  <Typography variant="h6" gutterBottom>
-                    {selectedEntity} List
-                  </Typography>
-                  <Typography color="textSecondary">
-                    Table coming soon...
-                  </Typography>
-                </CardContent>
-              </Card>
-            </Grid>
-          </>
-        );
+    fetchUser();
+  }, []);
+
+  if (loading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (error) {
+    return (
+      <Box sx={{ p: 3 }}>
+        <Alert severity="error">{error}</Alert>
+      </Box>
+    );
+  }
+
+  if (!user) {
+    return (
+      <Box sx={{ p: 3 }}>
+        <Alert severity="info">User not found</Alert>
+      </Box>
+    );
+  }
+
+  const quickLinks = [
+    {
+      title: 'Products',
+      description: 'Manage your products and services',
+      icon: <BusinessIcon sx={{ fontSize: 40 }} />,
+      href: '/products',
+      color: '#1976d2'
+    },
+    {
+      title: 'Events',
+      description: 'View and manage upcoming events',
+      icon: <EventIcon sx={{ fontSize: 40 }} />,
+      href: '/events',
+      color: '#2e7d32'
+    },
+    {
+      title: 'Tasks',
+      description: 'Track your tasks and assignments',
+      icon: <AssignmentIcon sx={{ fontSize: 40 }} />,
+      href: '/tasks',
+      color: '#ed6c02'
+    },
+    {
+      title: 'Documents',
+      description: 'Access your documents and files',
+      icon: <FolderIcon sx={{ fontSize: 40 }} />,
+      href: '/documents',
+      color: '#9c27b0'
     }
-  };
+  ];
 
   return (
     <Box
@@ -176,20 +108,83 @@ export default function AdminDashboardPage() {
         ml: { sm: `65px` },
       }}
     >
-      <Typography variant="h4" component="h1" gutterBottom sx={{ mb: 2 }}>
-        Admin Dashboard
+      <Typography variant="h4" component="h1" gutterBottom>
+        Welcome, {user.name}
       </Typography>
 
-      <Grid container spacing={3}>
-        <Grid item xs={12}>
-          <AdminSelector 
-            selectedEntity={selectedEntity}
-            onEntityChange={setSelectedEntity}
-          />
-        </Grid>
-
-        {renderEntityComponents()}
+      <Grid container spacing={3} sx={{ mt: 2 }}>
+        {quickLinks.map((link) => (
+          <Grid item xs={12} sm={6} md={3} key={link.title}>
+            <Card 
+              sx={{ 
+                height: '100%',
+                display: 'flex',
+                flexDirection: 'column',
+                transition: 'transform 0.2s',
+                '&:hover': {
+                  transform: 'translateY(-4px)',
+                  boxShadow: 3
+                }
+              }}
+            >
+              <CardContent sx={{ flexGrow: 1 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                  <Box sx={{ color: link.color, mr: 2 }}>
+                    {link.icon}
+                  </Box>
+                  <Typography variant="h6" component="h2">
+                    {link.title}
+                  </Typography>
+                </Box>
+                <Typography color="text.secondary" sx={{ mb: 2 }}>
+                  {link.description}
+                </Typography>
+                <Button 
+                  variant="contained" 
+                  href={link.href}
+                  sx={{ 
+                    backgroundColor: link.color,
+                    '&:hover': {
+                      backgroundColor: link.color,
+                      opacity: 0.9
+                    }
+                  }}
+                >
+                  Go to {link.title}
+                </Button>
+              </CardContent>
+            </Card>
+          </Grid>
+        ))}
       </Grid>
+
+      <Card sx={{ mt: 4 }}>
+        <CardContent>
+          <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
+            <PeopleIcon sx={{ fontSize: 40, mr: 2, color: 'primary.main' }} />
+            <Typography variant="h5">User Information</Typography>
+          </Box>
+
+          <Grid container spacing={3}>
+            <Grid item xs={12} md={6}>
+              <Typography variant="subtitle1" color="text.secondary">Name</Typography>
+              <Typography variant="body1">{user.name}</Typography>
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <Typography variant="subtitle1" color="text.secondary">Email</Typography>
+              <Typography variant="body1">{user.email}</Typography>
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <Typography variant="subtitle1" color="text.secondary">Role</Typography>
+              <Typography variant="body1">{user.role}</Typography>
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <Typography variant="subtitle1" color="text.secondary">Status</Typography>
+              <Typography variant="body1">{user.active ? 'Active' : 'Inactive'}</Typography>
+            </Grid>
+          </Grid>
+        </CardContent>
+      </Card>
     </Box>
   );
 }
