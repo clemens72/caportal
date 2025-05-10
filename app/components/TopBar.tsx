@@ -171,7 +171,7 @@ export default function TopBar() {
             variant="h6"
             component="div"
             sx={{
-              flexGrow: 1,
+              display: 'inline-block',
               color: theme.palette.primary.contrastText,
               fontWeight: 'bold',
               cursor: 'pointer',
@@ -184,26 +184,43 @@ export default function TopBar() {
             Class Acts Entertainment
           </Typography>
 
-          <Tooltip title="Account">
-            <IconButton
-              onClick={handleMenuOpen}
-              size="small"
-              sx={{ ml: 2 }}
-              aria-controls={Boolean(anchorEl) ? 'account-menu' : undefined}
-              aria-haspopup="true"
-              aria-expanded={Boolean(anchorEl) ? 'true' : undefined}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Typography
+              variant="body2"
+              sx={{
+                color: theme.palette.primary.contrastText,
+                opacity: 0.9,
+              }}
             >
-              <Avatar
-                sx={{
-                  bgcolor: theme.palette.primary.contrastText,
-                  color: theme.palette.primary.main,
-                }}
-                src={avatar}
-                alt={username}
+              {new Date().toLocaleDateString('en-US', { 
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+              })}
+            </Typography>
+
+            <Tooltip title="Account">
+              <IconButton
+                onClick={handleMenuOpen}
+                size="small"
+                sx={{ ml: 2 }}
+                aria-controls={Boolean(anchorEl) ? 'account-menu' : undefined}
+                aria-haspopup="true"
+                aria-expanded={Boolean(anchorEl) ? 'true' : undefined}
               >
-              </Avatar>
-            </IconButton>
-          </Tooltip>
+                <Avatar
+                  sx={{
+                    bgcolor: theme.palette.primary.contrastText,
+                    color: theme.palette.primary.main,
+                  }}
+                  src={avatar}
+                  alt={username}
+                >
+                </Avatar>
+              </IconButton>
+            </Tooltip>
+          </Box>
           <Menu
             anchorEl={anchorEl}
             id="account-menu"

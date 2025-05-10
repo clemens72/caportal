@@ -80,3 +80,77 @@ export async function DELETE(
     }, { status: 500 });
   }
 }
+
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id: productId } = await params;
+
+  if (!productId) {
+    return NextResponse.json({ error: 'Missing product ID' }, { status: 400 });
+  }
+
+  try {
+    const connection = new Connection(config);
+
+    await new Promise((resolve, reject) => {
+      connection.on('connect', (err) => {
+        if (err) {
+          console.error('Connection error:', err);
+          reject(err);
+        } else {
+          console.log('Connected to SQL Server');
+          resolve(null);
+        }
+      });
+      connection.connect();
+    });
+
+    const product = await new Promise((resolve, reject) => {
+      let result: any = null;
+      const request = new Request(
+        `SELECT id, name, gross_price, note, description, booking_contact, leader 
+         FROM products 
+         WHERE id = @id`,
+        (err) => {
+          if (err) {
+            console.error('Query error:', err);
+            reject(err);
+          } else {
+            resolve(result);
+          }
+        }
+      );
+
+      request.addParameter('id', TYPES.UniqueIdentifier, productId);
+
+      request.on('row', (columns) => {
+        result = {};
+        columns.forEach((column: { metadata: { colName: string }; value: any }) => {
+          result[column.metadata.colName] = column.value;
+        });
+      });
+
+      connection.execSql(request);
+    });
+
+    connection.close();
+
+    if (!product) {
+      return NextResponse.json(
+        { error: `Product with ID ${productId} not found` },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json(product);
+
+  } catch (error) {
+    console.error(`Error fetching product with ID ${productId}:`, error);
+    return NextResponse.json({
+      error: `Failed to fetch product with ID ${productId}`,
+      details: error instanceof Error ? error.message : String(error)
+    }, { status: 500 });
+  }
+}
