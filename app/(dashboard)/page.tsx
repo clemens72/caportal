@@ -109,7 +109,7 @@ export default function DashboardPage() {
       }}
     >
       <Typography variant="h4" component="h1" gutterBottom>
-        Welcome, {user.name}
+        Welcome, {user.username}
       </Typography>
 
       <Grid container spacing={3} sx={{ mt: 2 }}>
@@ -157,34 +157,6 @@ export default function DashboardPage() {
           </Grid>
         ))}
       </Grid>
-
-      <Card sx={{ mt: 4 }}>
-        <CardContent>
-          <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-            <PeopleIcon sx={{ fontSize: 40, mr: 2, color: 'primary.main' }} />
-            <Typography variant="h5">User Information</Typography>
-          </Box>
-
-          <Grid container spacing={3}>
-            <Grid item xs={12} md={6}>
-              <Typography variant="subtitle1" color="text.secondary">Name</Typography>
-              <Typography variant="body1">{user.name}</Typography>
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <Typography variant="subtitle1" color="text.secondary">Email</Typography>
-              <Typography variant="body1">{user.email}</Typography>
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <Typography variant="subtitle1" color="text.secondary">Role</Typography>
-              <Typography variant="body1">{user.role}</Typography>
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <Typography variant="subtitle1" color="text.secondary">Status</Typography>
-              <Typography variant="body1">{user.active ? 'Active' : 'Inactive'}</Typography>
-            </Grid>
-          </Grid>
-        </CardContent>
-      </Card>
     </Box>
   );
 }
