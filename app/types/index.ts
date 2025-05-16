@@ -1,9 +1,14 @@
 export interface User {
-    id: number;
+    id: string;
     username: string;
     password?: string;
     first_name: string;
     last_name: string;
+    created_at: string;
+    updated_at: string;
+    email: string;
+    role: string;
+    active: boolean;
 }
 
 export interface Product {
@@ -53,6 +58,10 @@ export interface Organization {
   name: string;
   type: 'client' | 'venue' | 'vendor' | 'partner';
   address: string;
+  city: string;
+  state: string;
+  zip: string;
+  country: string;
   year: number;
   website?: string;
   phone?: string;

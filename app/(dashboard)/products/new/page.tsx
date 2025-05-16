@@ -41,7 +41,7 @@ export default function NewProductPage() {
 
       <Card>
         <CardContent>
-          <CreateProductForm onProductCreated={handleProductCreated} />
+          <CreateProductForm onSuccess={handleProductCreated} />
         </CardContent>
       </Card>
     </Box>

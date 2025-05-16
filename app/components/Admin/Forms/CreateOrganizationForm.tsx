@@ -9,6 +9,8 @@ import {
   Snackbar,
   MenuItem
 } from '@mui/material';
+import { useRouter } from 'next/navigation';
+import { Organization } from '@/app/types/index';
 
 interface FormData {
   name: string;
@@ -32,20 +34,25 @@ const organizationTypes = [
 ];
 
 interface CreateOrganizationFormProps {
-  onOrganizationCreated?: () => void;
+  mode?: 'create' | 'edit';
+  initialData?: Organization;
+  onSuccess?: () => void;
 }
 
-export default function CreateOrganizationForm({ onOrganizationCreated }: CreateOrganizationFormProps) {
-  const [formData, setFormData] = useState<FormData>(defaultFormData);
-  const [submitting, setSubmitting] = useState(false);
-  const [snackbar, setSnackbar] = useState<{
-    open: boolean;
-    message: string;
-    severity: 'success' | 'error';
-  }>({
-    open: false,
-    message: '',
-    severity: 'success',
+export default function CreateOrganizationForm({ mode = 'create', initialData, onSuccess }: CreateOrganizationFormProps) {
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [formData, setFormData] = useState<Partial<Organization>>(initialData || {
+    name: '',
+    website: '',
+    phone: '',
+    address: '',
+    city: '',
+    state: '',
+    zip: '',
+    country: '',
+    notes: '',
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -58,45 +65,42 @@ export default function CreateOrganizationForm({ onOrganizationCreated }: Create
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSubmitting(true);
+    setLoading(true);
+    setError(null);
 
     try {
-      const response = await fetch('/api/organizations/add', {
-        method: 'POST',
+      const url = mode === 'edit' 
+        ? `/api/organizations/${initialData?.id}` 
+        : '/api/organizations';
+      
+      const method = mode === 'edit' ? 'PUT' : 'POST';
+
+      const response = await fetch(url, {
+        method,
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(formData),
       });
 
-      const data = await response.json();
-
-      if (response.ok) {
-        setSnackbar({
-          open: true,
-          message: 'Organization created successfully!',
-          severity: 'success',
-        });
-        setFormData(defaultFormData);
-        if (onOrganizationCreated) {
-          onOrganizationCreated();
-        }
-      } else {
-        throw new Error(data.error || 'Failed to create organization');
+      if (!response.ok) {
+        throw new Error(`Failed to ${mode} organization`);
       }
-    } catch (error) {
-      setSnackbar({
-        open: true,
-        message: error instanceof Error ? error.message : 'Failed to create organization',
-        severity: 'error',
-      });
+
+      if (onSuccess) {
+        onSuccess();
+      } else {
+        router.push('/organizations');
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
-      setSubmitting(false);
+      setLoading(false);
     }
   };
 
   const handleCloseSnackbar = () => {
-    setSnackbar(prev => ({ ...prev, open: false }));
+    setError(null);
   };
 
   return (
@@ -154,28 +158,30 @@ export default function CreateOrganizationForm({ onOrganizationCreated }: Create
             type="submit"
             variant="contained"
             color="primary"
-            disabled={submitting}
+            disabled={loading}
             sx={{ mt: 2 }}
           >
-            {submitting ? 'Creating...' : 'Create Organization'}
+            {loading ? 'Processing...' : 'Create Organization'}
           </Button>
         </Box>
       </form>
 
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={6000}
-        onClose={handleCloseSnackbar}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-      >
-        <Alert
+      {error && (
+        <Snackbar
+          open={!!error}
+          autoHideDuration={6000}
           onClose={handleCloseSnackbar}
-          severity={snackbar.severity}
-          sx={{ width: '100%' }}
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
         >
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
+          <Alert
+            onClose={handleCloseSnackbar}
+            severity="error"
+            sx={{ width: '100%' }}
+          >
+            {error}
+          </Alert>
+        </Snackbar>
+      )}
     </Box>
   );
 }

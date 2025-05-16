@@ -4,16 +4,9 @@ import { useRouter } from 'next/navigation';
 import GenericTable, { Column } from '@/app/components/Admin/Tables/GenericTable';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
-
-interface Product {
-  id: string;
-  name: string;
-  gross_price: number;
-  note: string;
-  description: string;
-  booking_contact: string;
-  leader: string;
-}
+import Button from '@mui/material/Button';
+import AddIcon from '@mui/icons-material/Add';
+import { Product } from '@/app/types';
 
 const columns: Column<Product>[] = [
   { id: 'name', label: 'Name' },
@@ -66,9 +59,19 @@ export default function ProductsPage() {
         ml: { sm: `65px` },
       }}
     >
-      <Typography variant="h4" component="h1" gutterBottom sx={{ mb: 4 }}>
-        Products Overview
-      </Typography>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
+        <Typography variant="h4" component="h1">
+          Products Overview
+        </Typography>
+        <Button
+          variant="contained"
+          color="primary"
+          startIcon={<AddIcon />}
+          onClick={() => router.push('/products/new')}
+        >
+          New Product
+        </Button>
+      </Box>
       <GenericTable<Product>
         title="Products"
         columns={columns}

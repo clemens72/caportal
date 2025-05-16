@@ -2,13 +2,45 @@
 
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
-import Grid from '@mui/material/Grid';
-import Card from '@mui/material/Card';
-import CardContent from '@mui/material/CardContent';
-import SearchBox from '@/app/components/SearchBox';
-import OrganizationTable from '@/app/components/Admin/Tables/OrganizationTable';
+import GenericTable, { Column } from '@/app/components/Admin/Tables/GenericTable';
+import { Organization } from '@/app/types';
+import { useRouter } from 'next/navigation';
+
+const columns: Column<Organization>[] = [
+  { id: 'name', label: 'Name' },
+  { id: 'address', label: 'Address' },
+  { id: 'year', label: 'Year' },
+  { id: 'type', label: 'Type' },
+];
 
 export default function OrganizationsPage() {
+
+  const router = useRouter();
+
+  const fetchOrganizations = async () => {
+    const response = await fetch('/api/organizations');
+    if (!response.ok) {
+      throw new Error('Failed to fetch organizations');
+    }
+    return response.json();
+  };
+
+  const handleDelete = async (id: string) => {
+    const response = await fetch(`/api/organizations/${id}`, {
+      method: 'DELETE',
+    });
+    if (!response.ok) {
+      throw new Error('Failed to delete organization');
+    }
+  };
+
+  const handleView = (organization: Organization) => {
+    router.push(`/organizations/${organization.id}`);
+  };
+
+  const handleEdit = (organization: Organization) => {
+    router.push(`/organizations/${organization.id}/edit`);
+  };
 
   return (
     <Box
@@ -24,35 +56,18 @@ export default function OrganizationsPage() {
         Organizations Overview
       </Typography>
 
-      <Grid container spacing={3}>
-        
-        {/* Search Box */}
-        <Grid item xs={12}>
-          <Card>
-            <SearchBox entityType="organizations" />
-          </Card>
-        </Grid>
-
-         {/* Organizations Table */}
-         <Grid item xs={12}>
-          <Card>
-            <CardContent>
-              <OrganizationTable />
-            </CardContent>
-          </Card>
-        </Grid>
-
-        {/* Recent Activities */}
-        <Grid item xs={12}>
-          <Card>
-            <CardContent>
-              <Typography variant="h6" gutterBottom>
-                Recent Activities
-              </Typography>
-            </CardContent>
-          </Card>
-        </Grid>
-      </Grid>
+        {/* Organizations Table */}
+        <GenericTable<Organization>
+          title="Organizations"
+          columns={columns}
+          fetchData={fetchOrganizations}
+          onDelete={handleDelete}
+          onView={handleView}
+          onEdit={handleEdit}
+          defaultSort="name"
+          clickable={true}
+          onRowClick={handleView}
+        />
     </Box>
   );
 }

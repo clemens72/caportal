@@ -2,13 +2,44 @@
 
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
-import Grid from '@mui/material/Grid';
-import Card from '@mui/material/Card';
-import CardContent from '@mui/material/CardContent';
-import SearchBox from '@/app/components/SearchBox';
-import UserTable from '@/app/components/Admin/Tables/UserTable';
+import { useRouter } from 'next/navigation';
+import GenericTable, { Column } from '@/app/components/Admin/Tables/GenericTable';
+import { User } from '@/app/types';
+
+const columns: Column<User>[] = [
+  { id: 'first_name', label: 'Name' },
+  { id: 'last_name', label: 'Address' },
+  { id: 'username', label: 'Year' }
+];
 
 export default function ContactsPage() {
+
+  const router = useRouter();
+
+  const fetchContacts = async () => {
+    const response = await fetch('/api/users');
+    if (!response.ok) {
+      throw new Error('Failed to fetch contacts');
+    }
+    return response.json();
+  };
+
+  const handleDelete = async (id: string) => {
+    const response = await fetch(`/api/contacts/${id}`, {
+      method: 'DELETE',
+    });
+    if (!response.ok) {
+      throw new Error('Failed to delete contact');
+    }
+  };
+
+  const handleView = (contact: User) => {
+    router.push(`/contacts/${contact.id}`);
+  };
+
+  const handleEdit = (contact: User) => {
+    router.push(`/contacts/${contact.id}/edit`);
+  };
 
   return (
     <Box
@@ -24,35 +55,20 @@ export default function ContactsPage() {
         Contacts Overview
       </Typography>
 
-      <Grid container spacing={3}>
-        
-        {/* Search Box */}
-        <Grid item xs={12}>
-          <Card>
-            <SearchBox entityType="users" />
-          </Card>
-        </Grid>
 
-        {/* Users Table */}
-        <Grid item xs={12}>
-          <Card>
-            <CardContent>
-              <UserTable />
-            </CardContent>
-          </Card>
-        </Grid>
+        {/* Organizations Table */}
+          <GenericTable<User>
+            title="Contacts"
+            columns={columns}
+            fetchData={fetchContacts}
+            onDelete={handleDelete}
+            onView={handleView}
+            onEdit={handleEdit}
+            defaultSort="first_name"
+            clickable={true}
+            onRowClick={handleView}
+          />
 
-        {/* Recent Activities */}
-        <Grid item xs={12}>
-          <Card>
-            <CardContent>
-              <Typography variant="h6" gutterBottom>
-                Recent Activities
-              </Typography>
-            </CardContent>
-          </Card>
-        </Grid>
-      </Grid>
     </Box>
   );
 }

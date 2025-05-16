@@ -2,6 +2,8 @@
 
 import React, { useState } from 'react';
 import { TextField, Button, Box, Alert, Snackbar } from '@mui/material';
+import { User } from '@/app/types';
+import { useRouter } from 'next/navigation';
 
 interface FormData {
   username: string;
@@ -16,11 +18,21 @@ const defaultFormData: FormData = {
 };
 
 interface CreateUserFormProps {
-  onUserCreated?: () => void;
+  mode?: 'create' | 'edit';
+  initialData?: User;
+  onSuccess?: () => void;
 }
 
-export default function CreateUserForm({ onUserCreated }: CreateUserFormProps) {
-  const [formData, setFormData] = useState<FormData>(defaultFormData);
+export default function CreateUserForm({ mode = 'create', initialData, onSuccess }: CreateUserFormProps) {
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [formData, setFormData] = useState<Partial<User>>(initialData || {
+    username: '',
+    email: '',
+    role: 'user',
+    active: true
+  });
   const [submitting, setSubmitting] = useState(false);
   const [snackbar, setSnackbar] = useState<{
     open: boolean;
@@ -62,8 +74,8 @@ export default function CreateUserForm({ onUserCreated }: CreateUserFormProps) {
           severity: 'success',
         });
         setFormData(defaultFormData);
-        if (onUserCreated) {
-          onUserCreated();
+        if (onSuccess) {
+          onSuccess();
         }
       } else {
         throw new Error(data.error || 'Failed to create user');

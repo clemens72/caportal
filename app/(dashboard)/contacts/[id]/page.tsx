@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Card from '@mui/material/Card';
@@ -15,17 +15,13 @@ import LocationOnIcon from '@mui/icons-material/LocationOn';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import CategoryIcon from '@mui/icons-material/Category';
 import dayjs from 'dayjs';
-
-interface User {
-  id: string;
-  username: string;
-  first_name: string;
-  last_name: string;
-  created_at: string;
-}
+import IconButton from '@mui/material/IconButton';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import { User } from '@/app/types';
 
 export default function UserDetailsPage() {
   const params = useParams();
+  const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -89,9 +85,18 @@ const formatDateTime = (dateTime: string) => {
         ml: { sm: `65px` },
       }}
     >
-      <Typography variant="h4" component="h1" gutterBottom sx={{ mb: 4 }}>
-        Contact Details
-      </Typography>
+      <Box sx={{ display: 'flex', alignItems: 'center', mb: 4 }}>
+        <IconButton 
+          onClick={() => router.back()} 
+          sx={{ mr: 2 }}
+          aria-label="back"
+        >
+          <ArrowBackIcon />
+        </IconButton>
+        <Typography variant="h4" component="h1" gutterBottom>
+          Contact Details: {user.first_name + " " + user.last_name}
+        </Typography>
+      </Box>
 
       <Grid container spacing={3}>
         <Grid item xs={12}>

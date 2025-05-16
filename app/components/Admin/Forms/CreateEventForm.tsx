@@ -10,38 +10,28 @@ import {
 } from '@mui/material';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import dayjs from 'dayjs';
-
-interface FormData {
-  name: string;
-  price: number;
-  leader: string;
-  location: string;
-  start_time: string | null;
-  end_time: string | null;
-  note: string;
-  description: string;
-  booking_contact: string;
-}
-
-const defaultFormData: FormData = {
-  name: '',
-  price: 0,
-  leader: '',
-  location: '',
-  start_time: null,
-  end_time: null,
-  note: '',
-  description: '',
-  booking_contact: ''
-};
+import { useRouter } from 'next/navigation';
+import { Event } from '@/app/types/index';
 
 interface CreateEventFormProps {
-  onEventCreated?: () => void;
+  mode?: 'create' | 'edit';
+  initialData?: Event;
+  onSuccess?: () => void;
 }
 
-export default function CreateEventForm({ onEventCreated }: CreateEventFormProps) {
-  const [formData, setFormData] = useState<FormData>(defaultFormData);
-  const [submitting, setSubmitting] = useState(false);
+export default function CreateEventForm({ mode = 'create', initialData, onSuccess }: CreateEventFormProps) {
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [formData, setFormData] = useState<Partial<Event>>(initialData || {
+    name: '',
+    start_time: '',
+    end_time: '',
+    location: '',
+    description: '',
+    status: 'scheduled',
+    notes: '',
+  });
   const [snackbar, setSnackbar] = useState<{
     open: boolean;
     message: string;
@@ -69,40 +59,37 @@ export default function CreateEventForm({ onEventCreated }: CreateEventFormProps
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSubmitting(true);
+    setLoading(true);
+    setError(null);
 
     try {
-      const response = await fetch('/api/events/add', {
-        method: 'POST',
+      const url = mode === 'edit' 
+        ? `/api/events/${initialData?.id}` 
+        : '/api/events';
+      
+      const method = mode === 'edit' ? 'PUT' : 'POST';
+
+      const response = await fetch(url, {
+        method,
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(formData),
       });
 
-      const data = await response.json();
-
-      if (response.ok) {
-        setSnackbar({
-          open: true,
-          message: 'Event created successfully!',
-          severity: 'success',
-        });
-        setFormData(defaultFormData);
-        if (onEventCreated) {
-          onEventCreated();
-        }
-      } else {
-        throw new Error(data.error || 'Failed to create event');
+      if (!response.ok) {
+        throw new Error(`Failed to ${mode} event`);
       }
-    } catch (error) {
-      setSnackbar({
-        open: true,
-        message: error instanceof Error ? error.message : 'Failed to create event',
-        severity: 'error',
-      });
+
+      if (onSuccess) {
+        onSuccess();
+      } else {
+        router.push('/events');
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
-      setSubmitting(false);
+      setLoading(false);
     }
   };
 
@@ -170,8 +157,8 @@ export default function CreateEventForm({ onEventCreated }: CreateEventFormProps
 
           <TextField
             label="Note"
-            name="note"
-            value={formData.note}
+            name="notes"
+            value={formData.notes}
             onChange={handleChange}
             fullWidth
             multiline
@@ -202,10 +189,10 @@ export default function CreateEventForm({ onEventCreated }: CreateEventFormProps
             type="submit"
             variant="contained"
             color="primary"
-            disabled={submitting}
+            disabled={loading}
             sx={{ mt: 2 }}
           >
-            {submitting ? 'Creating...' : 'Create Event'}
+            {loading ? 'Processing...' : 'Submit'}
           </Button>
         </Box>
       </form>
